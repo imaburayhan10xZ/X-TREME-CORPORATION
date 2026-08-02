@@ -1,0 +1,6 @@
+{
+  "name": "X-TREME CRM",
+  "description": "Enterprise Subscription CRM & User Management System for X-TREME CORPORATION.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
