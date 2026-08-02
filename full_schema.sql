@@ -85,7 +85,16 @@ CREATE TABLE IF NOT EXISTS settings (
   value text NOT NULL
 );
 
--- 2. Indexes
+-- 2. Add Missing Columns
+ALTER TABLE users ADD COLUMN IF NOT EXISTS next_obb_fee_date timestamp with time zone;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS total_paid decimal(10, 2) DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS total_due decimal(10, 2) DEFAULT 0;
+ALTER TABLE packages ADD COLUMN IF NOT EXISTS package_type text DEFAULT 'regular';
+ALTER TABLE packages ADD COLUMN IF NOT EXISTS offer_price decimal(10, 2);
+ALTER TABLE packages ADD COLUMN IF NOT EXISTS obb_fee_amount decimal(10, 2) DEFAULT 0;
+ALTER TABLE packages ADD COLUMN IF NOT EXISTS obb_fee_duration_days int;
+
+-- 3. Indexes
 CREATE INDEX IF NOT EXISTS idx_users_sid ON users(sid);
 CREATE INDEX IF NOT EXISTS idx_users_license_key ON users(license_key);
 CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
