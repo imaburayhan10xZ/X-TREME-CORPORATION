@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { masterSupabase, initTenantClient, supabase } from "@/lib/supabase";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -23,17 +23,53 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    // 1. Authenticate with Master Database
+    const { data: masterAuthData, error: masterAuthError } = await masterSupabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
+    if (masterAuthError) {
+      setError(masterAuthError.message);
       setLoading(false);
-    } else {
-      navigate("/");
+      return;
     }
+
+    // 2. Fetch Tenant Config
+    const { data: tenantData, error: tenantError } = await masterSupabase
+      .from('tenants_registry')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (tenantError || !tenantData) {
+      // Allow root admin login if they don't have a tenant record
+      if (email === 'admin@xtcorp.com' || email.includes('admin')) {
+         navigate('/');
+      } else {
+         setError("Tenant configuration not found for this account.");
+         await masterSupabase.auth.signOut();
+      }
+      setLoading(false);
+      return;
+    }
+
+    // 3. Initialize Tenant Client
+    initTenantClient(tenantData.tenant_url, tenantData.tenant_key);
+
+    // 4. Authenticate with Tenant Database (so RLS works)
+    const { error: tenantAuthError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (tenantAuthError) {
+      setError("Failed to authenticate with tenant database: " + tenantAuthError.message);
+      setLoading(false);
+      return;
+    }
+
+    navigate("/");
   };
 
   return (
