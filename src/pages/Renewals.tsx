@@ -1,3 +1,5 @@
+import { useSettings } from "@/contexts/SettingsContext";
+import { getCurrencySymbol } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout/Layout";
 import { RefreshCw, Search, Loader2, Plus, X } from "lucide-react";
@@ -5,6 +7,8 @@ import { api } from "@/lib/api";
 import toast from "react-hot-toast";
 
 export default function RenewalsPage() {
+  const { settings } = useSettings();
+  const currencySymbol = getCurrencySymbol(settings.currency);
   const [renewals, setRenewals] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [packages, setPackages] = useState<any[]>([]);
@@ -47,7 +51,7 @@ export default function RenewalsPage() {
     }
   }, [formData.package_id, packages]);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: any) {
     e.preventDefault();
     try {
       await api.createRenewal({
@@ -149,7 +153,7 @@ export default function RenewalsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Amount to Add to Due ($)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Amount to Add to Due ({currencySymbol})</label>
                   <input required type="number" step="0.01" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50" />
                   <p className="text-xs text-slate-500 mt-2">This amount will be added to the user's Total Due balance. Expiry will be automatically extended.</p>
                 </div>

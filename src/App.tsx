@@ -21,7 +21,7 @@ import LoginPage from "@/pages/Login";
 import { Toaster } from "react-hot-toast";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute = ({ children }: { children: any }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 

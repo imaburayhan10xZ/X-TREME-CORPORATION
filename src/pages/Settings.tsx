@@ -21,7 +21,7 @@ export default function SettingsPage() {
     setLoading(false);
   }, [globalSettings]);
 
-  async function handleSave(e: React.FormEvent) {
+  async function handleSave(e: any) {
     e.preventDefault();
     setSaving(true);
     try {

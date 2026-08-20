@@ -1,3 +1,5 @@
+import { useSettings } from "@/contexts/SettingsContext";
+import { getCurrencySymbol } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout/Layout";
 import { Plus, Edit2, Trash2, Loader2, Search, X, Eye } from "lucide-react";
@@ -7,6 +9,8 @@ import toast from "react-hot-toast";
 import { ConfirmModal } from "@/components/ConfirmModal";
 
 export default function UsersPage() {
+  const { settings } = useSettings();
+  const currencySymbol = getCurrencySymbol(settings.currency);
   const [users, setUsers] = useState<any[]>([]);
   const [packages, setPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +28,7 @@ export default function UsersPage() {
     sid: "", full_name: "", mobile: "", email: "", license_key: "", package_id: "", status: "active", total_paid: "0", total_due: "0", next_obb_fee_date: ""
   });
 
-  const handlePackageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlePackageChange = (e: any) => {
     const pkgId = e.target.value;
     const pkg = packages.find(p => p.id === pkgId);
     
@@ -43,7 +47,7 @@ export default function UsersPage() {
     });
   };
 
-  const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDaysChange = (e: any) => {
     const days = parseInt(e.target.value);
     if (!isNaN(days)) {
       const date = new Date();
@@ -89,7 +93,7 @@ export default function UsersPage() {
     }
   }
   
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: any) {
     e.preventDefault();
     try {
       const payload = {
@@ -174,7 +178,7 @@ export default function UsersPage() {
                   <th className="px-6 py-4">Name / SID</th>
                   <th className="px-6 py-4">Contact</th>
                   <th className="px-6 py-4">Package</th>
-                  <th className="px-6 py-4">Expiry</th>
+                  <th className="px-6 py-4">Expiry / Next OBB</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Financial</th>
                   <th className="px-6 py-4 text-right">Actions</th>
@@ -201,10 +205,15 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4">
                       {user.subscription_expiry ? (
-                        <div className={`text-sm ${new Date(user.subscription_expiry) < new Date() ? 'text-rose-600 font-bold' : 'text-slate-600'}`}>
-                          {new Date(user.subscription_expiry).toLocaleDateString()}
+                        <div className={`text-sm ${new Date(user.subscription_expiry) < new Date() ? 'text-rose-600 font-bold' : 'text-slate-600'}`} title="Subscription Expiry">
+                          Exp: {new Date(user.subscription_expiry).toLocaleDateString()}
                         </div>
-                      ) : <span className="text-xs text-slate-400">N/A</span>}
+                      ) : <div className="text-xs text-slate-400">Exp: N/A</div>}
+                      {user.next_obb_fee_date && (
+                        <div className={`text-xs mt-1 ${new Date(user.next_obb_fee_date) < new Date() ? 'text-rose-600 font-bold' : 'text-indigo-600'}`} title="Next OBB Fee Date">
+                          OBB: {new Date(user.next_obb_fee_date).toLocaleDateString()}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded text-[10px] font-bold ${
@@ -216,10 +225,10 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-xs">
-                        <span className="text-slate-500">Paid:</span> <span className="font-bold text-emerald-600">${user.total_paid || 0}</span>
+                        <span className="text-slate-500">Paid:</span> <span className="font-bold text-emerald-600">{currencySymbol}{user.total_paid || 0}</span>
                       </div>
                       <div className="text-xs mt-1">
-                        <span className="text-slate-500">Due:</span> <span className="font-bold text-rose-600">${user.total_due || 0}</span>
+                        <span className="text-slate-500">Due:</span> <span className="font-bold text-rose-600">{currencySymbol}{user.total_due || 0}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -278,8 +287,8 @@ export default function UsersPage() {
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-slate-500 uppercase mb-1">Financials</h4>
-                  <p className="text-sm text-slate-700">Paid: <span className="font-bold text-emerald-600">${viewUser.total_paid || 0}</span></p>
-                  <p className="text-sm text-slate-700 mt-1">Due: <span className="font-bold text-rose-600">${viewUser.total_due || 0}</span></p>
+                  <p className="text-sm text-slate-700">Paid: <span className="font-bold text-emerald-600">{currencySymbol}{viewUser.total_paid || 0}</span></p>
+                  <p className="text-sm text-slate-700 mt-1">Due: <span className="font-bold text-rose-600">{currencySymbol}{viewUser.total_due || 0}</span></p>
                   {viewUser.next_obb_fee_date && (
                     <p className="text-sm text-slate-700 mt-1">Next OBB: <span className="font-bold text-indigo-600">{new Date(viewUser.next_obb_fee_date).toLocaleDateString()}</span></p>
                   )}
@@ -344,11 +353,11 @@ export default function UsersPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Paid ($)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Paid ({currencySymbol})</label>
                   <input type="number" step="0.01" value={formData.total_paid} onChange={e => setFormData({...formData, total_paid: e.target.value})} className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Due ($)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Total Due ({currencySymbol})</label>
                   <input type="number" step="0.01" value={formData.total_due} onChange={e => setFormData({...formData, total_due: e.target.value})} className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
                 </div>
                 <div className="col-span-2 grid grid-cols-2 gap-6 p-4 bg-slate-50 rounded-lg border border-slate-100">

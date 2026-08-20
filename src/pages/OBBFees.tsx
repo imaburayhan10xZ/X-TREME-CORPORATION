@@ -1,3 +1,5 @@
+import { useSettings } from "@/contexts/SettingsContext";
+import { getCurrencySymbol } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout/Layout";
 import { Plus, Search, Loader2, X } from "lucide-react";
@@ -5,6 +7,8 @@ import { api } from "@/lib/api";
 import toast from "react-hot-toast";
 
 export default function OBBFeesPage() {
+  const { settings } = useSettings();
+  const currencySymbol = getCurrencySymbol(settings.currency);
   const [obbs, setObbs] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +38,7 @@ export default function OBBFeesPage() {
     setLoading(false);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: any) {
     e.preventDefault();
     try {
       await api.createOBBPayment({
@@ -95,7 +99,7 @@ export default function OBBFeesPage() {
                       {new Date(o.created_at).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 font-bold text-slate-900">{o.users?.full_name || 'Unknown'}</td>
-                    <td className="px-6 py-4 font-bold text-indigo-600">${o.amount}</td>
+                    <td className="px-6 py-4 font-bold text-indigo-600">{currencySymbol}{o.amount}</td>
                     <td className="px-6 py-4 text-right">
                       <span className="px-2 py-1 rounded bg-emerald-50 text-emerald-600 text-[10px] font-bold">PAID</span>
                     </td>
@@ -124,7 +128,7 @@ export default function OBBFeesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Amount Paid ($)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Amount Paid ({currencySymbol})</label>
                   <input required type="number" step="0.01" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
                 </div>
               </div>

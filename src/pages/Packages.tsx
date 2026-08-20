@@ -1,3 +1,5 @@
+import { useSettings } from "@/contexts/SettingsContext";
+import { getCurrencySymbol } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout/Layout";
 import { Plus, Edit2, Trash2, Loader2, Search, X } from "lucide-react";
@@ -6,6 +8,8 @@ import toast from "react-hot-toast";
 import { ConfirmModal } from "@/components/ConfirmModal";
 
 export default function PackagesPage() {
+  const { settings } = useSettings();
+  const currencySymbol = getCurrencySymbol(settings.currency);
   const [packages, setPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -53,7 +57,7 @@ export default function PackagesPage() {
     }
   }
   
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: any) {
     e.preventDefault();
     try {
       const payload = {
@@ -149,16 +153,16 @@ export default function PackagesPage() {
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-slate-700 capitalize">{pkg.package_type || 'Regular'}</td>
                     <td className="px-6 py-4">
-                      <div className="font-bold text-slate-700">${pkg.offer_price ? pkg.offer_price : pkg.price}</div>
-                      {pkg.offer_price && <div className="text-[10px] text-slate-400 line-through">${pkg.price}</div>}
+                      <div className="font-bold text-slate-700">{currencySymbol}{pkg.offer_price ? pkg.offer_price : pkg.price}</div>
+                      {pkg.offer_price && <div className="text-[10px] text-slate-400 line-through">{currencySymbol}{pkg.price}</div>}
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600">
-                      {pkg.package_type === 'permanent' ? <span className="font-bold text-indigo-600">Lifetime</span> : `${pkg.duration_days} Days`}
+                      {pkg.package_type === 'permanent' ? <span className="font-bold text-indigo-600">Lifetime</span> : `${currencySymbol}{pkg.duration_days} Days`}
                     </td>
                     <td className="px-6 py-4">
                       {pkg.obb_fee_amount > 0 ? (
                         <div className="text-sm">
-                          <span className="font-bold text-rose-600">${pkg.obb_fee_amount}</span>
+                          <span className="font-bold text-rose-600">{currencySymbol}{pkg.obb_fee_amount}</span>
                           <span className="text-slate-500 text-xs ml-1">after {pkg.obb_fee_duration_days}d</span>
                         </div>
                       ) : (
@@ -215,15 +219,15 @@ export default function PackagesPage() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Regular Price ($)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Regular Price ({currencySymbol})</label>
                   <input required type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Offer Price (Optional $)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Offer Price (Optional {currencySymbol})</label>
                   <input type="number" step="0.01" value={formData.offer_price} onChange={e => setFormData({...formData, offer_price: e.target.value})} className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Leave empty if no offer" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">OBB Fee Amount ($)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">OBB Fee Amount ({currencySymbol})</label>
                   <input type="number" step="0.01" value={formData.obb_fee_amount} onChange={e => setFormData({...formData, obb_fee_amount: e.target.value})} className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0" />
                 </div>
                 <div>

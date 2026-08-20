@@ -1,3 +1,5 @@
+import { useSettings } from "@/contexts/SettingsContext";
+import { getCurrencySymbol } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout/Layout";
 import { api } from "@/lib/api";
@@ -6,6 +8,8 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianG
 
 export default function Dashboard() {
   const [stats, setStats] = useState<any>(null);
+  const { settings } = useSettings();
+  const currencySymbol = getCurrencySymbol(settings.currency);
   const [recentPayments, setRecentPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +57,7 @@ export default function Dashboard() {
         <StatCard title="Total Users" value={stats.totalUsers} icon={<Users className="w-5 h-5 text-indigo-600" />} color="border-l-indigo-500" />
         <StatCard title="Active Subs" value={stats.activeUsers} icon={<Activity className="w-5 h-5 text-emerald-600" />} color="border-l-emerald-500" />
         <StatCard title="Expired Subs" value={stats.expiredUsers} icon={<AlertCircle className="w-5 h-5 text-rose-600" />} color="border-l-rose-500" />
-        <StatCard title="Monthly Revenue" value={`$${stats.monthlyRevenue}`} icon={<CreditCard className="w-5 h-5 text-indigo-600" />} color="border-l-indigo-500" />
+        <StatCard title="Monthly Revenue" value={`${currencySymbol}${stats.monthlyRevenue}`} icon={<CreditCard className="w-5 h-5 text-indigo-600" />} color="border-l-indigo-500" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -70,10 +74,10 @@ export default function Dashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dx={-10} tickFormatter={(value) => `$${value}`} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dx={-10} tickFormatter={(value) => `${currencySymbol}${value}`} />
                 <Tooltip 
                   contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
-                  formatter={(value: number) => [`$${value}`, 'Revenue']}
+                  formatter={(value: number) => [`${currencySymbol}${value}`, 'Revenue']}
                 />
                 <Area type="monotone" dataKey="value" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
               </AreaChart>
@@ -99,7 +103,7 @@ export default function Dashboard() {
                         {new Date(p.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="font-bold text-emerald-600">${p.amount}</div>
+                    <div className="font-bold text-emerald-600">{currencySymbol}{p.amount}</div>
                   </div>
                 ))}
               </div>
@@ -111,7 +115,7 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ title, value, icon, color }: { title: string, value: string | number, icon: React.ReactNode, color: string }) {
+function StatCard({ title, value, icon, color }: { title: string, value: string | number, icon: any, color: string }) {
   return (
     <div className={`bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-l-4 ${color} flex justify-between items-start`}>
       <div>

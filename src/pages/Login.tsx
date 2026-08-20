@@ -18,7 +18,7 @@ export default function LoginPage() {
     });
   }, [navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault();
     setLoading(true);
     setError("");

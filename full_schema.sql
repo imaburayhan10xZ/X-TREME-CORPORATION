@@ -1,8 +1,10 @@
--- Supabase CRM Schema for X-TREME CORPORATION
+-- Supabase CRM Full Schema for X-TREME CORPORATION
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. Tables
+-- ==========================================
+-- 1. TABLES CREATION (If they don't exist)
+-- ==========================================
 
 CREATE TABLE IF NOT EXISTS admins (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -85,23 +87,38 @@ CREATE TABLE IF NOT EXISTS settings (
   value text NOT NULL
 );
 
--- 2. Add Missing Columns
-ALTER TABLE users ADD COLUMN IF NOT EXISTS next_obb_fee_date timestamp with time zone;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS total_paid decimal(10, 2) DEFAULT 0;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS total_due decimal(10, 2) DEFAULT 0;
+-- ==========================================
+-- 2. ALTER EXISTING TABLES (Fixes missing columns and constraints)
+-- ==========================================
+
+-- Add any missing columns to packages
 ALTER TABLE packages ADD COLUMN IF NOT EXISTS package_type text DEFAULT 'regular';
 ALTER TABLE packages ADD COLUMN IF NOT EXISTS offer_price decimal(10, 2);
 ALTER TABLE packages ADD COLUMN IF NOT EXISTS obb_fee_amount decimal(10, 2) DEFAULT 0;
 ALTER TABLE packages ADD COLUMN IF NOT EXISTS obb_fee_duration_days int;
 
--- 3. Indexes
+-- Fix the NOT NULL constraint on duration_days if it was set previously
+ALTER TABLE packages ALTER COLUMN duration_days DROP NOT NULL;
+
+-- Add any missing columns to users
+ALTER TABLE users ADD COLUMN IF NOT EXISTS total_paid decimal(10, 2) DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS total_due decimal(10, 2) DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS next_obb_fee_date timestamp with time zone;
+
+-- ==========================================
+-- 3. INDEXES
+-- ==========================================
+
 CREATE INDEX IF NOT EXISTS idx_users_sid ON users(sid);
 CREATE INDEX IF NOT EXISTS idx_users_license_key ON users(license_key);
 CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
 CREATE INDEX IF NOT EXISTS idx_renewals_user_id ON renewals(user_id);
 CREATE INDEX IF NOT EXISTS idx_obb_payments_user_id ON obb_payments(user_id);
 
--- 3. RLS Policies
+-- ==========================================
+-- 4. ROW LEVEL SECURITY (RLS) POLICIES
+-- ==========================================
+
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE packages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

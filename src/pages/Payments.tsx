@@ -1,3 +1,5 @@
+import { useSettings } from "@/contexts/SettingsContext";
+import { getCurrencySymbol } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout/Layout";
 import { Plus, Search, Loader2, X } from "lucide-react";
@@ -5,6 +7,8 @@ import { api } from "@/lib/api";
 import toast from "react-hot-toast";
 
 export default function PaymentsPage() {
+  const { settings } = useSettings();
+  const currencySymbol = getCurrencySymbol(settings.currency);
   const [payments, setPayments] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +50,7 @@ export default function PaymentsPage() {
     setLoading(false);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: any) {
     e.preventDefault();
     if (!formData.user_id) {
       toast.error("Please select a user");
@@ -120,7 +124,7 @@ export default function PaymentsPage() {
                       {new Date(p.created_at).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 font-bold text-slate-900">{p.users?.full_name || 'Unknown'}</td>
-                    <td className="px-6 py-4 font-bold text-emerald-600">${p.amount}</td>
+                    <td className="px-6 py-4 font-bold text-emerald-600">{currencySymbol}{p.amount}</td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-bold text-slate-700">{p.payment_method}</div>
                       {p.transaction_id && <div className="text-[11px] font-mono text-slate-500 mt-0.5">{p.transaction_id}</div>}
@@ -172,7 +176,7 @@ export default function PaymentsPage() {
                             className="p-3 hover:bg-indigo-50 cursor-pointer border-b border-slate-50 last:border-0"
                             onClick={() => {
                               setFormData({ ...formData, user_id: u.id });
-                              setUserSearch(`${u.full_name} (${u.sid})`);
+                              setUserSearch(`${currencySymbol}{u.full_name} (${u.sid})`);
                               setShowUserDropdown(false);
                             }}
                           >
@@ -192,7 +196,7 @@ export default function PaymentsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Amount Paid ($)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Amount Paid ({currencySymbol})</label>
                   <input required type="number" step="0.01" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
                 </div>
                 <div>

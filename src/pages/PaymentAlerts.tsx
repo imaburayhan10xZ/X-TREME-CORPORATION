@@ -1,3 +1,5 @@
+import { useSettings } from "@/contexts/SettingsContext";
+import { getCurrencySymbol } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout/Layout";
 import { Loader2, AlertCircle, Clock, CreditCard } from "lucide-react";
@@ -6,6 +8,8 @@ import { Link } from "react-router-dom";
 
 export default function PaymentAlertsPage() {
   const [alerts, setAlerts] = useState<any>({ dues: [], upcomingObb: [], expiring: [] });
+  const { settings } = useSettings();
+  const currencySymbol = getCurrencySymbol(settings.currency);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,9 +49,9 @@ export default function PaymentAlertsPage() {
                       <p className="text-sm font-bold text-slate-900">{user.full_name}</p>
                       <p className="text-xs font-mono text-slate-500">{user.sid}</p>
                     </div>
-                    <span className="font-bold text-rose-600">${user.total_due}</span>
+                    <span className="font-bold text-rose-600">{currencySymbol}{user.total_due}</span>
                   </div>
-                  <Link to={`/payments?user=${user.id}`} className="text-xs font-bold text-indigo-600 hover:text-indigo-800">Record Payment &rarr;</Link>
+                  <Link to={`/payments?user={currencySymbol}{user.id}`} className="text-xs font-bold text-indigo-600 hover:text-indigo-800">Record Payment &rarr;</Link>
                 </div>
               ))}
             </div>
@@ -71,9 +75,9 @@ export default function PaymentAlertsPage() {
                       <p className="text-sm font-bold text-slate-900">{user.full_name}</p>
                       <p className="text-xs text-slate-500">Due: <span className="font-bold text-amber-600">{new Date(user.next_obb_fee_date).toLocaleDateString()}</span></p>
                     </div>
-                    <span className="font-bold text-slate-700">${user.packages?.obb_fee_amount || 0}</span>
+                    <span className="font-bold text-slate-700">{currencySymbol}{user.packages?.obb_fee_amount || 0}</span>
                   </div>
-                  <Link to={`/obb-fees?user=${user.id}`} className="text-xs font-bold text-indigo-600 hover:text-indigo-800">Process OBB &rarr;</Link>
+                  <Link to={`/obb-fees?user={currencySymbol}{user.id}`} className="text-xs font-bold text-indigo-600 hover:text-indigo-800">Process OBB &rarr;</Link>
                 </div>
               ))}
             </div>
@@ -99,7 +103,7 @@ export default function PaymentAlertsPage() {
                     </div>
                     <span className="text-xs font-bold px-2 py-1 bg-slate-200 text-slate-700 rounded">{user.packages?.name}</span>
                   </div>
-                  <Link to={`/renewals?user=${user.id}`} className="text-xs font-bold text-indigo-600 hover:text-indigo-800">Renew Package &rarr;</Link>
+                  <Link to={`/renewals?user={currencySymbol}{user.id}`} className="text-xs font-bold text-indigo-600 hover:text-indigo-800">Renew Package &rarr;</Link>
                 </div>
               ))}
             </div>
