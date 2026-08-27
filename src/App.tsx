@@ -1,3 +1,8 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -12,8 +17,7 @@ import PaymentAlertsPage from "@/pages/PaymentAlerts";
 import ActivityLogsPage from "@/pages/ActivityLogs";
 import SettingsPage from "@/pages/Settings";
 import LoginPage from "@/pages/Login";
-import RootLoginPage from "@/pages/RootLogin";
-import RootDashboardPage from "@/pages/RootDashboard";
+
 import { Toaster } from "react-hot-toast";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 
@@ -54,8 +58,6 @@ export default function App() {
         <Toaster position="top-right" />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/root-login" element={<RootLoginPage />} />
-          <Route path="/root-dashboard" element={<RootDashboardPage />} />
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
           <Route path="/packages" element={<ProtectedRoute><PackagesPage /></ProtectedRoute>} />

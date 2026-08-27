@@ -1,7 +1,7 @@
 import { LayoutDashboard, Users, Package, CreditCard, RefreshCw, AlertTriangle, FileText, Activity, Settings, BellRing, LogOut } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { supabase, masterSupabase, clearTenantClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useSettings } from '@/contexts/SettingsContext';
 
 const navItems = [
@@ -22,13 +22,7 @@ export function Sidebar() {
   const { settings } = useSettings();
 
   const handleLogout = async () => {
-    // 1. Sign out of Tenant DB
     await supabase.auth.signOut();
-    // 2. Sign out of Master DB
-    await masterSupabase.auth.signOut();
-    // 3. Clear tenant config from local storage
-    clearTenantClient();
-    
     navigate('/login');
   };
 
